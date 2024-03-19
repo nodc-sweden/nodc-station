@@ -1,0 +1,6 @@
+description: If no values are given, this validator calculates new values based coordinate system "dd"
+name: coordinates_dm
+lat_key: lat_dm
+lon_key: lon_dm
+fill_in_new_values: true
+validator: !!python/name:stations.validators.coordinates.DegreeMinuteValidator ''

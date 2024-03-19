@@ -1,0 +1,41 @@
+description: Export list according to SHARK master format
+writer: !!python/name:stations.writers.shark_master.SharkMasterWriter ''
+default_file_name: station.txt
+attribute_mapping:
+    REG_ID: id
+    REG_ID_GROUP: id_group
+    STATION_NAME: statn
+    SYNONYM_NAMES: synonyms
+    ICES_STATION_NAME: ices_name
+    LAT_DM: lat_dm
+    LONG_DM: lon_dm
+    LATITUDE_WGS84_SWEREF99_DD: lat_dd
+    LONGITUDE_WGS84_SWEREF99_DD: lon_dd
+    LATITUDE_SWEREF99TM: lat_sweref99tm
+    LONGITUDE_SWEREF99TM: lon_sweref99tm
+    OUT_OF_BOUNDS_RADIUS: radius
+    WADEP: wadep
+    EU_CD: eucd
+    MEDIA: media
+    OLD_SHARK_ID: old_id
+    COMNT: comnt
+attribute_constants:
+    OUT_OF_BOUNDS_RADIUS: 1200
+header:
+    - REG_ID
+    - REG_ID_GROUP
+    - STATION_NAME
+    - SYNONYM_NAMES
+    - ICES_STATION_NAME
+    - LAT_DM
+    - LONG_DM
+    - LATITUDE_WGS84_SWEREF99_DD
+    - LONGITUDE_WGS84_SWEREF99_DD
+    - LATITUDE_SWEREF99TM
+    - LONGITUDE_SWEREF99TM
+    - OUT_OF_BOUNDS_RADIUS
+    - WADEP
+    - EU_CD
+    - MEDIA
+    - COMNT
+    - OLD_SHARK_ID

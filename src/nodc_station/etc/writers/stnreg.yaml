@@ -1,0 +1,78 @@
+description: Export list according to the Swedish National Station Register format
+writer: !!python/name:stations.writers.stnreg.StnRegWriter ''
+default_file_name: 'station_list_stnreg.xlsx'
+attribute_mapping:
+    Nationellt provplats-ID: id
+    Nationellt övervakningsstations-ID: id_group
+    Namn: statn
+    Media: media
+    Synonymer: synonyms
+    Position WGS84 Dec N: lat_dd
+    Position WGS84 Dec E: lon_dd
+    Position WGS84 DM N: lat_dm
+    Position WGS84 DM E: lon_dm
+    Position SWEREF99 TM N: lat_sweref99tm
+    Position SWEREF99 TM E: lon_sweref99tm
+    EuCd: eucd
+    Kommentar: comnt
+attribute_constants:
+    Aktiv: SANT
+    Hemlig: FALSKT
+    Forcera: ''
+    Ansvarigt datavärdskap: DV Oceanografi och marinbiologi
+    Ansvarig organisation: SMHI
+    Ansvarig organisation e-post: shark@smhi.se
+    Användande datavärdskap: ''
+    Valideringsdatum: ''
+    Uppdateringsdatum: ''
+    ÄldreId: ''
+    EuCd: ''
+    LänsId: ''
+    Ansvarig: Naturvårdsverket och Havs- och vattenmyndigheten
+    System: Stationsregistret
+    Datum: ''
+    Koordinatsystem (plan): SWEREF 99 TM
+    Användare: smhi
+    Position SWEREF99 N: ''
+    Position SWEREF99 E: ''
+    Kommentar: ''
+    "*Senast ändrad": ''
+    "*UUID": ''
+    "*URI": ''
+    "*Web URI": ''
+header:
+    - Nationellt provplats-ID
+    - Nationellt övervakningsstations-ID
+    - Aktiv
+    - Hemlig
+    - Forcera
+    - Namn
+    - Ansvarigt datavärdskap
+    - Ansvarig organisation
+    - Ansvarig organisation e-post
+    - Användande datavärdskap
+    - Media
+    - Valideringsdatum
+    - Uppdateringsdatum
+    - Synonymer
+    - ÄldreId
+    - EuCd
+    - LänsId
+    - Position SWEREF99 TM N
+    - Position SWEREF99 TM E
+    - Position SWEREF99 N
+    - Position SWEREF99 E
+    - Position WGS84 Dec N
+    - Position WGS84 Dec E
+    - Position WGS84 DM N
+    - Position WGS84 DM E
+    - Kommentar
+    - "*Senast ändrad"
+    - "*UUID"
+    - "*URI"
+    - "*Web URI"
+meta_header:
+    - Ansvarig
+    - System
+    - Datum
+    - Koordinatsystem

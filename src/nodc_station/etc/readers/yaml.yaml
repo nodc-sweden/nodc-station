@@ -1,0 +1,3 @@
+description: Reader for yaml files
+name: yaml_reader
+reader: !!python/name:stations.readers.yml.yaml_reader ''

@@ -1,0 +1,11 @@
+description: Reader for txt files
+name: shark_reader
+meta:
+    synonym_separator: "<or>"
+reader: !!python/name:stations.readers.txt.PandasTxtReader ''
+reader_kwargs:
+    sep: "\t"
+    encoding: "cp1252"
+    header: 0
+    dtype: !!python/str
+    keep_default_na: false

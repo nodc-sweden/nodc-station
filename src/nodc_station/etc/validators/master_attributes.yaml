@@ -1,0 +1,4 @@
+description: Check for values in SHARK master that can be copied to the given list.
+name: master_attributes
+id_key: id
+validator: !!python/name:stations.validators.attributes.MasterAttributes ''

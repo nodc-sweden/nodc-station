@@ -1,0 +1,6 @@
+description: Validates if new points lies within SVAR-areas (Baltic Sea, Kattegat, Skagerrak)
+name: position_vs_master
+lat_key: lat_sweref99tm
+lon_key: lon_sweref99tm
+file_path: "C:/Arbetsmapp/config/station.txt"
+validator: !!python/name:stations.validators.position.MatchMasterListValidator ''

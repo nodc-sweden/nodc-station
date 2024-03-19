@@ -1,0 +1,14 @@
+description: Check for values in mandatory attributes inorder to append list to SHARK master.
+name: mandatory_attributes
+validator: !!python/name:stations.validators.attributes.MandatoryAttributes ''
+attributes:
+    - id
+    - id_group
+    - statn
+    - lat_dm
+    - lon_dm
+    - lat_dd
+    - lon_dd
+    - lat_sweref99tm
+    - lon_sweref99tm
+    - radius

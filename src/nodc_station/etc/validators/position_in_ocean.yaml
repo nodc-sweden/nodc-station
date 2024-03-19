@@ -1,0 +1,6 @@
+description: Validates if new points lies within radius of master stations.
+name: position_in_ocean
+lat_key: lat_sweref99tm
+lon_key: lon_sweref99tm
+file_path: "C:/Arbetsmapp/config/sharkweb_shapefiles/Havsomr_SVAR_2016_3c_CP1252.shp"
+validator: !!python/name:stations.validators.position.PositionInOceanValidator ''

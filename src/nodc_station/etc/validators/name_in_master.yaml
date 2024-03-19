@@ -1,0 +1,4 @@
+description: Check if a given name exists in the SHARK master name list.
+name: name_in_master
+statn_key: statn
+validator: !!python/name:stations.validators.identity.Name ''

@@ -1,0 +1,6 @@
+description: Master coordinate system.
+name: coordinates_sweref
+lat_key: lat_sweref99tm
+lon_key: lon_sweref99tm
+fill_in_new_values: true
+validator: !!python/name:stations.validators.coordinates.SweRef99tmValidator ''
