@@ -1,6 +1,6 @@
 description: Check for values in mandatory attributes inorder to append list to SHARK master.
 name: mandatory_attributes
-validator: !!python/name:stations.validators.attributes.MandatoryAttributes ''
+validator: !!python/name:nodc_station.validators.attributes.MandatoryAttributes ''
 attributes:
     - id
     - id_group

@@ -7,6 +7,8 @@ Created on 2020-09-25 16:41
 
 """
 import os
+import pathlib
+
 import numpy as np
 try:
     from collections import Mapping
@@ -80,6 +82,21 @@ def generate_filepaths(directory: str, pattern=''):
         for f in fids:
             if pattern in f:
                 yield os.path.abspath(os.path.join(path, f))
+
+# def generate_filepaths(directory: str, pattern=''):
+#     """
+#     :param directory: str, directory path
+#     :param pattern: str
+#     :return: generator
+#     """
+#     paths = []
+#     for root, dirs, files in os.walk(directory, topdown=False):
+#         for name in files:
+#             path = pathlib.Path(root, name)
+#             if path.suffix != '.yaml':
+#                 continue
+#             paths.append(path)
+#     return paths
 
 
 def get_now_time(fmt=None) -> str:

@@ -1,5 +1,5 @@
 description: Export list on html-map using the folium package
-writer: !!python/name:stations.writers.map.MapWriter ''
+writer: !!python/name:nodc_station.writers.map.MapWriter ''
 default_file_name: station_list_map.html
 station_radius: true
 map_settings:

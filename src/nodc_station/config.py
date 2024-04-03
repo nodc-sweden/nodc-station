@@ -72,7 +72,9 @@ class SettingsBase:
         :param kwargs: Dictionary
         :return: sets attributes to object
         """
+        print('set_attributes')
         for key, value in kwargs.items():
+            print(f'{key=}   {value=}')
             setattr(self, key, value)
 
 
@@ -97,13 +99,17 @@ class Settings(SettingsBase):
         """
         paths = generate_filepaths(etc_path, pattern='.yaml')
         etc_data = {}
+        print()
         for path in paths:
             try:
+                print(f'{path=}')
                 data = yaml_reader(path)
                 etc_data.setdefault(path, data)
+                print('yes')
             except: # To handle non settings files in the same directory
+                raise
                 pass
-
+        print(f'{etc_data.keys()=}')
         self.set_attributes(**etc_data)
 
     def load_reader(self, reader):

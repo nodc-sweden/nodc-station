@@ -3,4 +3,4 @@ name: position_vs_master
 lat_key: lat_sweref99tm
 lon_key: lon_sweref99tm
 file_path: "C:/Arbetsmapp/config/station.txt"
-validator: !!python/name:stations.validators.position.MatchMasterListValidator ''
+validator: !!python/name:nodc_station.validators.position.MatchMasterListValidator ''

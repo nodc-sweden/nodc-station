@@ -1,5 +1,5 @@
 description: Export list according to the Swedish National Station Register format
-writer: !!python/name:stations.writers.stnreg.StnRegWriter ''
+writer: !!python/name:nodc_station.writers.stnreg.StnRegWriter ''
 default_file_name: 'station_list_stnreg.xlsx'
 attribute_mapping:
     Nationellt provplats-ID: id

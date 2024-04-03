@@ -3,4 +3,4 @@ name: coordinates_dd
 lat_key: lat_dd
 lon_key: lon_dd
 fill_in_new_values: true
-validator: !!python/name:stations.validators.coordinates.DegreeValidator ''
+validator: !!python/name:nodc_station.validators.coordinates.DegreeValidator ''

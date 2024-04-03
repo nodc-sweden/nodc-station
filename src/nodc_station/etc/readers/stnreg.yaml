@@ -2,7 +2,7 @@ description: Reader for xlsx files according to the national station register
 name: stnreg_reader
 meta:
     synonym_separator: ";"
-reader: !!python/name:stations.readers.xlsx.PandasXlsxReader ''
+reader: !!python/name:nodc_station.readers.xlsx.PandasXlsxReader ''
 reader_kwargs:
     sheet_name: Provplatser
     header: 0

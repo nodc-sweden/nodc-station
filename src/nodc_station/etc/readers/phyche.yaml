@@ -1,6 +1,6 @@
 description: Reader for delivery xlsx-file according to the physical and chemical format of the Swedish NODC
 name: phyche_reader
-reader: !!python/name:stations.readers.phyche.PhysicalChemicalExcelReader ''
+reader: !!python/name:nodc_station.readers.phyche.PhysicalChemicalExcelReader ''
 reader_kwargs:
     sheet_name: Kolumner
     header: 2

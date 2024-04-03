@@ -2,7 +2,7 @@ description: Reader for txt files
 name: shark_reader
 meta:
     synonym_separator: "<or>"
-reader: !!python/name:stations.readers.txt.PandasTxtReader ''
+reader: !!python/name:nodc_station.readers.txt.PandasTxtReader ''
 reader_kwargs:
     sep: "\t"
     encoding: "cp1252"
