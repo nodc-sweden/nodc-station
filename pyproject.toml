@@ -1,6 +1,6 @@
 [project]
 name = "nodc-station"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python package to handle station list"
 authors = [
     {name = "Magnus Wenzer", email = "magnus.wenzer@smhi.se"},
