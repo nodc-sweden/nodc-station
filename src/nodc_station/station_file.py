@@ -21,15 +21,13 @@ class StationFile:
 
         self._header = []
         self._data = dict()
-        self._synonyms = dict()
+        self._synonym_index = dict()
         self._df: pd.DataFrame = pd.DataFrame()
 
         self._load_file()
 
     @property
     def df(self):
-        if self._df.empty:
-            self._df = pd.read_csv(self._path, encoding=self._encoding, sep='\t')
         return self._df
 
     @property
@@ -61,91 +59,99 @@ class StationFile:
         """Converts a header column (in station file or given by user) to a more comparable string"""
         return header_col.strip().lower()
 
-    def _load_file(self) -> None:
-        with open(self.path, encoding=self._encoding) as fid:
-            for r, line in enumerate(fid):
-                if not line.strip():
-                    continue
-                split_line = [item.strip() for item in line.split('\t')]
-                if r == 0:
-                    header = split_line
-                    self._header = [self._convert_header_col(item) for item in header]
-                    continue
-                line_dict = dict(zip(self._header, split_line))
-                # Fix synonyms
-                synonym_string = line_dict['synonym_names']
-                line_dict['synonym_names'] = set()
-                for item in synonym_string.split('<or>'):
-                    syn = self._convert_synonym(item)
-                    if not syn:
-                        continue
-                    line_dict['synonym_names'].add(syn)
-                for col in self.header:
-                    if col in self.keys_not_as_synonyms:
-                        continue
-                    item = self._convert_synonym(line_dict[col])
-                    if not item:
-                        continue
-                    line_dict['synonym_names'].add(item)
-                # Store synonyms
-                for syn in line_dict['synonym_names']:
-                    self._synonyms[syn] = line_dict['station_name']
+    def _get_synonyms_for_row(self, row: pd.Series):
+        synonyms = []
+        for col in row.keys():
+            if col in self.keys_not_as_synonyms:
+                continue
+            if type(row[col]) is not str:
+                continue
+            for item in row[col].split('<o>'):
+                syn = self._convert_synonym(item)
+                synonyms.append(syn)
+        return synonyms
 
-                # Store date
-                self._data[self._convert_station_name(line_dict['station_name'])] = line_dict
+    def _load_file(self) -> None:
+        self._df = pd.read_csv(self._path, encoding=self._encoding, sep='\t')
+        for i, row in self._df.iterrows():
+            for syn in self._get_synonyms_for_row(row):
+                self._synonym_index.setdefault(syn, [])
+                self._synonym_index[syn].append(i)
+
+
+            # for col in self._df.columns:
+            #     if col in self.keys_not_as_synonyms:
+            #         continue
+            #     if type(row[col]) is not str:
+            #         continue
+            #     for item in row[col].split('<o>'):
+            #         syn = self._convert_synonym(item)
+            #         self._synonym_index.setdefault(syn, [])
+            #         self._synonym_index[syn].append(i)
 
     def get_station_name_list(self) -> list[str]:
-        return sorted(self._data)
+        return sorted(self.df['STATION_NAME'])
 
-    def get_station_name(self, synonym: str = None) -> set | None:
+    def get_station_names(self, synonym: str = None) -> list[str]:
         """Takes a synonym of a station and returns the corresponding station name. Returns None if no match for the
         synonym is found"""
-        return self._synonyms.get(self._convert_synonym(synonym), None)
+        index = self._synonym_index.get(self._convert_synonym(synonym))
+        if not index:
+            return []
+        return sorted(self.df.loc[index]['STATION_NAME'])
 
-    def get_station_info(self, synonym: str) -> dict:
+    def _get_info_from_row(self, row: pd.Series, index: int) -> dict:
+        info = row.to_dict()
+        info['index'] = index
+        print(info)
+        # info['synonyms'] = [self._convert_synonym(syn) for syn in info['SYNONYM_NAMES'].split('<o>')]
+        info['synonyms'] = self._get_synonyms_for_row(row)
+        if not info['OUT_OF_BOUNDS_RADIUS']:
+            info['accepted'] = None
+        elif 'calc_dist' in info and (info['calc_dist'] <= info['OUT_OF_BOUNDS_RADIUS']):
+            info['accepted'] = True
+        else:
+            info['accepted'] = False
+        return info
+
+    def _get_info_list_from_df(self, df: pd.DataFrame) -> list[dict]:
+        info_list = []
+        for index, row in df.iterrows():
+            info = self._get_info_from_row(row, index)
+            info_list.append(info)
+        return info_list
+
+    def get_station_info(self, synonym: str) -> list:
         """Returns all station information corresponding to the given synonym.
         Returns None if synonym dont match any station"""
-        station = self.get_station_name(synonym)
-        if not synonym:
-            return None
-        return self._data[station]
-
-    def get_translation(self, synonym: str = None, translate_to: str = None) -> str | None:
-        """Takes a synonym and translates it to the list specified in 'translate_to'. Returns None if not found"""
-        translate_to = self._convert_header_col(translate_to)
-        if translate_to not in self.header:
-            msg = f'Not able to translate to "{translate_to}". Nu such mapping available'
-            logger.warning(msg)
-            raise KeyError(msg)
-        station_name = self.get_station_name(synonym)
-        if not station_name:
-            logger.warning(f'Could not find station_name matching "{synonym}"."')
-            return None
-        return self._data[station_name][translate_to]
-
-    def get_pos_dm(self, synonym: str) -> tuple[str, str] | None:
-        station_data = self._data.get(self.get_station_name(synonym))
-        if not station_data:
-            return None
-        return station_data[self._convert_header_col('LAT_DM')], station_data[self._convert_header_col('LON_DM')]
-
-    def get_pos_wgs84_sweref99_dd(self, synonym: str) -> tuple[str, str] | None:
-        station_data = self._data.get(self.get_station_name(synonym))
-        if not station_data:
-            return None
-        return station_data[self._convert_header_col('LATITUDE_WGS84_SWEREF99_DD')], \
-            station_data[self._convert_header_col('LONGITUDE_WGS84_SWEREF99_DD')]
-
-    def get_pos_sweref99tm(self, synonym: str) -> tuple[str, str] | None:
-        station_data = self._data.get(self.get_station_name(synonym))
-        if not station_data:
-            return None
-        return station_data[self._convert_header_col('LATITUDE_SWEREF99TM')], \
-            station_data[self._convert_header_col('LONGITUDE_SWEREF99TM')]
-
-    def list_synonyms(self, station_name: str) -> list[str]:
-        station_name = self._convert_station_name(station_name)
-        return self._data[station_name]['synonym_names']
+        index = self._synonym_index.get(self._convert_synonym(synonym))
+        if not index:
+            return []
+        df = self.df.loc[index]
+        return self._get_info_list_from_df(df)
+    # def get_pos_dm(self, synonym: str) -> tuple[str, str] | None:
+    #     station_data = self._data.get(self.get_station_name(synonym))
+    #     if not station_data:
+    #         return None
+    #     return station_data[self._convert_header_col('LAT_DM')], station_data[self._convert_header_col('LON_DM')]
+    #
+    # def get_pos_wgs84_sweref99_dd(self, synonym: str) -> tuple[str, str] | None:
+    #     station_data = self._data.get(self.get_station_name(synonym))
+    #     if not station_data:
+    #         return None
+    #     return station_data[self._convert_header_col('LATITUDE_WGS84_SWEREF99_DD')], \
+    #         station_data[self._convert_header_col('LONGITUDE_WGS84_SWEREF99_DD')]
+    #
+    # def get_pos_sweref99tm(self, synonym: str) -> tuple[str, str] | None:
+    #     station_data = self._data.get(self.get_station_name(synonym))
+    #     if not station_data:
+    #         return None
+    #     return station_data[self._convert_header_col('LATITUDE_SWEREF99TM')], \
+    #         station_data[self._convert_header_col('LONGITUDE_SWEREF99TM')]
+    #
+    # def list_synonyms(self, station_name: str) -> list[str]:
+    #     station_name = self._convert_station_name(station_name)
+    #     return self._data[station_name]['synonym_names']
 
     @functools.cache
     def get_closest_station_info(self, lat: str, lon: str):
@@ -153,27 +159,32 @@ class StationFile:
                                                     lat=float(lat),
                                                     lon=float(lon): self._calc_distance(lat, lon, row), axis=1)
         cdf = self.df[self.df['calc_dist'] == min(self.df['calc_dist'])]
-        if len(cdf) != 1:
-            raise Exception(f'Several closest stations found for pos: {lat}/{lon}')
-        info = dict(zip(cdf.columns, cdf.to_dict(orient='split', index=False)['data'][0]))
-        if not info['OUT_OF_BOUNDS_RADIUS']:
-            info['accepted'] = None
-        elif info['calc_dist'] <= info['OUT_OF_BOUNDS_RADIUS']:
-            info['accepted'] = True
-        else:
-            info['accepted'] = False
-        return info
+        info_list = self._get_info_list_from_df(cdf)
+        return info_list
+
+    @functools.cache
+    def get_station_info_from_synonym_and_position(self, synonym: str, lat: str, lon: str) -> dict:
+        index = self._synonym_index.get(self._convert_synonym(synonym), [])
+        if not index:
+            return {}
+        df = self.df.loc[index]
+        df['calc_dist'] = df.apply(lambda row,
+                                   lat=float(lat),
+                                   lon=float(lon): self._calc_distance(lat, lon, row), axis=1)
+        info_list = self._get_info_list_from_df(df)
+        return sorted(info_list, key=lambda info: info['calc_dist'])[0]
 
     def _calc_distance(self, lat: float, lon: float, row: pd.Series):
         pos1 = lat, lon
         pos2 = row['LATITUDE_WGS84_SWEREF99_DD'], row['LONGITUDE_WGS84_SWEREF99_DD']
         return utils.latlon_distance(pos1, pos2)
-    
-    def get_eu_cd_for_station_name(self, station_name: str) -> str:
-        info = self.get_station_info(station_name)
-        if not info:
-            return None
-        return info[self._convert_header_col('EU_CD')]
+
+
+    # def get_eu_cd_for_station_name(self, station_name: str) -> str:
+    #     info = self.get_station_info(station_name)
+    #     if not info:
+    #         return None
+    #     return info[self._convert_header_col('EU_CD')]
 
 
 @functools.cache
