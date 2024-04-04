@@ -83,21 +83,6 @@ def generate_filepaths(directory: str, pattern=''):
             if pattern in f:
                 yield os.path.abspath(os.path.join(path, f))
 
-# def generate_filepaths(directory: str, pattern=''):
-#     """
-#     :param directory: str, directory path
-#     :param pattern: str
-#     :return: generator
-#     """
-#     paths = []
-#     for root, dirs, files in os.walk(directory, topdown=False):
-#         for name in files:
-#             path = pathlib.Path(root, name)
-#             if path.suffix != '.yaml':
-#                 continue
-#             paths.append(path)
-#     return paths
-
 
 def get_now_time(fmt=None) -> str:
     """

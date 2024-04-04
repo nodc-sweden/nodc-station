@@ -8,11 +8,6 @@ from nodc_station import utils
 
 logger = logging.getLogger(__name__)
 
-# if getattr(sys, 'frozen', False):
-#     THIS_DIR = pathlib.Path(sys.executable).parent
-# else:
-#     THIS_DIR = pathlib.Path(__file__).parent
-
 THIS_DIR = pathlib.Path(__file__).parent
 DEFAULT_STATION_FILE_PATH = THIS_DIR / 'CONFIG_FILES' / 'station.txt'
 
