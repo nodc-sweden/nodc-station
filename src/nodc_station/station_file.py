@@ -1,15 +1,12 @@
+import functools
 import logging
 import pathlib
-import sys
+
 import pandas as pd
-import functools
+
 from nodc_station import utils
 
-
 logger = logging.getLogger(__name__)
-
-THIS_DIR = pathlib.Path(__file__).parent
-DEFAULT_STATION_FILE_PATH = THIS_DIR / 'CONFIG_FILES' / 'station.txt'
 
 
 class StationFile:
@@ -78,17 +75,6 @@ class StationFile:
                 self._synonym_index.setdefault(syn, [])
                 self._synonym_index[syn].append(i)
 
-
-            # for col in self._df.columns:
-            #     if col in self.keys_not_as_synonyms:
-            #         continue
-            #     if type(row[col]) is not str:
-            #         continue
-            #     for item in row[col].split('<o>'):
-            #         syn = self._convert_synonym(item)
-            #         self._synonym_index.setdefault(syn, [])
-            #         self._synonym_index[syn].append(i)
-
     def get_station_name_list(self) -> list[str]:
         return sorted(self.df['STATION_NAME'])
 
@@ -103,8 +89,6 @@ class StationFile:
     def _get_info_from_row(self, row: pd.Series, index: int) -> dict:
         info = row.to_dict()
         info['index'] = index
-        print(info)
-        # info['synonyms'] = [self._convert_synonym(syn) for syn in info['SYNONYM_NAMES'].split('<o>')]
         info['synonyms'] = self._get_synonyms_for_row(row)
         if not info['OUT_OF_BOUNDS_RADIUS']:
             info['accepted'] = None
@@ -129,29 +113,7 @@ class StationFile:
             return []
         df = self.df.loc[index]
         return self._get_info_list_from_df(df)
-    # def get_pos_dm(self, synonym: str) -> tuple[str, str] | None:
-    #     station_data = self._data.get(self.get_station_name(synonym))
-    #     if not station_data:
-    #         return None
-    #     return station_data[self._convert_header_col('LAT_DM')], station_data[self._convert_header_col('LON_DM')]
-    #
-    # def get_pos_wgs84_sweref99_dd(self, synonym: str) -> tuple[str, str] | None:
-    #     station_data = self._data.get(self.get_station_name(synonym))
-    #     if not station_data:
-    #         return None
-    #     return station_data[self._convert_header_col('LATITUDE_WGS84_SWEREF99_DD')], \
-    #         station_data[self._convert_header_col('LONGITUDE_WGS84_SWEREF99_DD')]
-    #
-    # def get_pos_sweref99tm(self, synonym: str) -> tuple[str, str] | None:
-    #     station_data = self._data.get(self.get_station_name(synonym))
-    #     if not station_data:
-    #         return None
-    #     return station_data[self._convert_header_col('LATITUDE_SWEREF99TM')], \
-    #         station_data[self._convert_header_col('LONGITUDE_SWEREF99TM')]
-    #
-    # def list_synonyms(self, station_name: str) -> list[str]:
-    #     station_name = self._convert_station_name(station_name)
-    #     return self._data[station_name]['synonym_names']
+
 
     @functools.cache
     def get_closest_station_info(self, lat: str, lon: str):
@@ -179,29 +141,5 @@ class StationFile:
         pos2 = row['LATITUDE_WGS84_SWEREF99_DD'], row['LONGITUDE_WGS84_SWEREF99_DD']
         return utils.latlon_distance(pos1, pos2)
 
-
-    # def get_eu_cd_for_station_name(self, station_name: str) -> str:
-    #     info = self.get_station_info(station_name)
-    #     if not info:
-    #         return None
-    #     return info[self._convert_header_col('EU_CD')]
-
-
-@functools.cache
-def get_station_object(path: pathlib.Path | str | None = None) -> "StationFile":
-    path = path or DEFAULT_STATION_FILE_PATH
-    return StationFile(path)
-
-
-def print_closest_station_info(lat: float | str, lon: float | str, path: str | pathlib.Path | None = None) -> None:
-    obj = get_station_object(path)
-    info = obj.get_closest_station_info(lat, lon)
-    print()
-    print('-'*100)
-    print(f'Closest station for position [{lat}, {lon}]')
-    print('-'*100)
-    for key in sorted(info):
-        value = info[key]
-        print(f'{key.ljust(30)}:  {value}')
 
 
