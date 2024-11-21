@@ -72,9 +72,9 @@ class SettingsBase:
         :param kwargs: Dictionary
         :return: sets attributes to object
         """
-        print('set_attributes')
+        # print('set_attributes')
         for key, value in kwargs.items():
-            print(f'{key=}   {value=}')
+            # print(f'{key=}   {value=}')
             setattr(self, key, value)
 
 
