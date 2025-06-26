@@ -94,6 +94,10 @@ class MatchingStations:
     def __getitem__(self, item: int):
         return self._stations[item]
 
+    def __iter__(self):
+        for item in self._stations:
+            yield item
+
 
 class StationFile:
     """Class to handle the official station list att SMHI"""
