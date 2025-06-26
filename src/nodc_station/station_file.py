@@ -229,13 +229,13 @@ class StationFile:
                               lon_dd: float = None) -> MatchingStations:
         within_radius = self.get_stations_within_radius(lat_dd, lon_dd)
         matching_synonym = self.get_stations_with_matching_synonym(name)
+        accepted_index = None
         if not within_radius:
             all_matching_by_index = {item["index"]: item for item in matching_synonym}
         elif not matching_synonym:
             all_matching_by_index = {item["index"]: item for item in within_radius}
         else:
             all_matching_by_index = {}
-            accepted_index = None
             for rad in within_radius:
                 for syn in matching_synonym:
                     if rad["index"] == syn["index"]:
