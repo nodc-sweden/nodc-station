@@ -33,6 +33,8 @@ def _get_default_station_path() -> Path:
 
 
 @functools.cache
-def get_station_object(path: Path | str | None = None) -> StationFile:
+def get_station_object(
+    path: Path | str | None = None, case_sensitive: bool = True
+) -> StationFile:
     path = path or _get_default_station_path()
-    return StationFile(path)
+    return StationFile(path, case_sensitive=case_sensitive)

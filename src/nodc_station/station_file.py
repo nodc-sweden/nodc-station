@@ -113,10 +113,11 @@ class MatchingStations:
 class StationFile:
     """Class to handle the official station list att SMHI"""
 
-    def __init__(self, path: pathlib.Path, **kwargs):
+    def __init__(self, path: pathlib.Path, case_sensitive: bool = True, **kwargs):
         self._path = pathlib.Path(path)
         self._encoding = kwargs.get('encoding', 'cp1252')
         self._delimiter = "\t"
+        self._case_sensitive = case_sensitive
 
         self._header = []
         self._data = dict()
@@ -216,13 +217,25 @@ class StationFile:
         self._geopan_df["buffer"] = self._geopan_df["geometry"].buffer(self._geopan_df["radius"])
 
     def _add_synonyms_to_geopan_df(self):
-        self._geopan_df["synonyms"] = self._geopan_df["station_name"].str.split("DUMMY")
+        if self._case_sensitive:
+            self._geopan_df["synonyms"] = self._geopan_df["station_name"].str.split(
+                "DUMMY"
+            )
+            synonym_function = lambda row: row["synonyms"] + row["SYNONYM_NAMES"].split(
+                "<or>"
+            )
+        else:
+            self._geopan_df["synonyms"] = (
+                self._geopan_df["station_name"].str.upper().str.split("DUMMY")
+            )
+            synonym_function = lambda row: row["synonyms"] + row[
+                "SYNONYM_NAMES"
+            ].upper().split("<OR>")
 
         # Om SYNONYM_NAMES inte är null, splitta på <or> och lägg till i 'synonyms'
         mask = self._geopan_df["SYNONYM_NAMES"].notna()
         self._geopan_df.loc[mask, "synonyms"] = self._geopan_df.loc[mask].apply(
-            lambda row: row["synonyms"] + row["SYNONYM_NAMES"].split("<or>"),
-            axis=1
+            synonym_function, axis=1
         )
 
         # Lägg till värden från övriga kolumner (om de finns i keys_as_synonyms)
@@ -230,8 +243,10 @@ class StationFile:
             if col in self.keys_as_synonyms:
                 mask = self._geopan_df[col].notna()
                 self._geopan_df.loc[mask, "synonyms"] = self._geopan_df.loc[mask].apply(
-                    lambda row: sorted(set(row["synonyms"] + str(row[col]).split("DUMMY"))),
-                    axis=1
+                    lambda row: sorted(
+                        set(row["synonyms"] + str(row[col]).split("DUMMY"))
+                    ),
+                    axis=1,
                 )
 
     def get_station_name_list(self) -> list[str]:
@@ -293,14 +308,21 @@ class StationFile:
         return list(pos_df.to_crs("3006")["geometry"])[0]
 
     def get_stations_with_matching_synonym(self, name: str) -> list[dict]:
-        df = self._geopan_df[
-            self._geopan_df["synonyms"].apply(lambda syns: name in syns)]
+        if self._case_sensitive:
+            match_function = lambda synonyms: name in synonyms
+        else:
+            match_function = lambda synonyms: name.upper() in synonyms
+
+        df = self._geopan_df[self._geopan_df["synonyms"].apply(match_function)]
         return df.to_dict(orient="records")
 
     def get_stations_with_matching_synonym_polars(self, name: str) -> list[dict]:
-        return self._pol_df.filter(
-            pl.col("synonyms").list.contains(name)
-        ).to_dicts()
+        if self._case_sensitive:
+            return self._pol_df.filter(pl.col("synonyms").list.contains(name)).to_dicts()
+        else:
+            return self._pol_df.filter(
+                pl.col("synonyms").list.contains(name.upper())
+            ).to_dicts()
 
     def _get_spatial_info_for_index_polars(self, index: int) -> dict:
         return self._geopan_df.loc[index, :].to_dict()
@@ -339,7 +361,3 @@ class StationFile:
         return_df = self._geopan_df.loc[within_buffer, :].copy()
         return_df.reset_index(inplace=True)
         return return_df
-
-
-
-
