@@ -86,25 +86,28 @@ class MatchingStation:
 class MatchingStations:
     def __init__(self, stations: list[dict]) -> None:
         self._stations = [MatchingStation(station) for station in stations]
-        self._stations = sorted(self._stations, key=lambda x: x.distance)
+        self._stations.sort(key=lambda x: x.distance)
 
     def get_accepted_station(self) -> MatchingStation | None:
-        for statn in self._stations:
-            if statn.is_accepted:
-                return statn
+        for station in self._stations:
+            if station.is_accepted:
+                return station
 
     def __repr__(self):
-        lines = ["Matching stations:"]
-        for statn in self._stations:
-            lines.append(statn.__repr__())
+        lines = ["Matching stations:"] + [repr(station) for station in self._stations]
         return "\n".join(lines)
 
     def __getitem__(self, item: int):
         return self._stations[item]
 
     def __iter__(self):
-        for item in self._stations:
-            yield item
+        return iter(self._stations)
+
+    def __len__(self):
+        return len(self._stations)
+
+    def __bool__(self):
+        return bool(self._stations)
 
 
 class StationFile:
