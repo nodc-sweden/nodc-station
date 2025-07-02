@@ -39,6 +39,14 @@ class MatchingStation:
         return self._station["accepted"]
 
     @property
+    def accepted_name(self) -> str:
+        return self._station["accepted_name"]
+
+    @property
+    def accepted_position(self) -> str:
+        return self._station["accepted_position"]
+
+    @property
     def station(self) -> str:
         return self._station["station_name"]
 
@@ -226,35 +234,44 @@ class StationFile:
     def get_station_name_list(self) -> list[str]:
         return sorted(self.pol_df['station_name'])
 
+
     @functools.cache
-    def get_matching_stations(self,
-                              name: str = None,
-                              lat_dd: float = None,
-                              lon_dd: float = None) -> MatchingStations:
-        within_radius = self.get_stations_within_radius(lat_dd, lon_dd)
-        matching_synonym = self.get_stations_with_matching_synonym(name)
-        accepted_index = None
-        if not within_radius:
-            all_matching_by_index = {item["index"]: item for item in matching_synonym}
-        elif not matching_synonym:
-            all_matching_by_index = {item["index"]: item for item in within_radius}
-        else:
-            all_matching_by_index = {}
-            for rad in within_radius:
-                for syn in matching_synonym:
-                    if rad["index"] == syn["index"]:
-                        accepted_index = rad["index"]
-                    all_matching_by_index[rad["index"]] = rad
-                    all_matching_by_index[syn["index"]] = syn
-        all_matching = []
-        for i, mat in all_matching_by_index.items():
-            mat['accepted'] = False
-            if i == accepted_index:
-                mat['accepted'] = True
-            # mat.update(self._get_spatial_info_for_index(i))
-            all_matching.append(mat)
+    def get_matching_stations(
+            self,
+            name: str = None,
+            lat_dd: float = None,
+            lon_dd: float = None
+    ) -> MatchingStations:
+        position_matches = {
+            station["index"]: station
+            for station in self.get_stations_within_radius(lat_dd, lon_dd)
+        }
+
+        name_matches = {
+            station["index"]: station
+            for station in self.get_stations_with_matching_synonym(name)
+        }
+
+        all_matching_indices = set(position_matches.keys() | name_matches.keys())
+        all_matches = []
+        for index in all_matching_indices:
+            station = {"accepted_position": False, "accepted_name": False}
+
+            if radius_match := position_matches.get(index):
+                station |= radius_match
+                station["accepted_position"] = True
+
+            if name_match := name_matches.get(index):
+                station |= name_match
+                station["accepted_name"] = True
+
+            station["accepted"] = (
+                    station["accepted_position"] and station["accepted_name"]
+            )
+            all_matches.append(station)
+
         self._geopan_df.drop('distance', axis=1, inplace=True)
-        return MatchingStations(all_matching)
+        return MatchingStations(all_matches)
 
     def get_stations_within_radius(self,
                                     lat_dd: float = None,
@@ -273,7 +290,6 @@ class StationFile:
         return list(pos_df.to_crs("3006")["geometry"])[0]
 
     def get_stations_with_matching_synonym(self, name: str) -> list[dict]:
-
         df = self._geopan_df[
             self._geopan_df["synonyms"].apply(lambda syns: name in syns)]
         return df.to_dict(orient="records")
