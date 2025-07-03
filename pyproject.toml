@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "a001985", email = "magnus.wenzer@smhi.se" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "geopandas>=1.1.0",
     "polars>=1.31.0",
@@ -20,3 +20,23 @@ nodc-station = "nodc_station:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 90
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "A",  # flake8-builtins
+    "F",  # pyflakes
+    "E", # pycodestyle: error
+    "W",  # pycodestyle: warning
+    "I",  # isort: unsorted-imports
+    "RUF"  # Ruff-specific rules
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.1",
+]
