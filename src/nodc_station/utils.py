@@ -8,7 +8,6 @@ Created on 2020-09-25 16:41
 """
 import os
 import math
-import pathlib
 
 import polars as pl
 import numpy as np
@@ -17,7 +16,7 @@ try:
 except ImportError:
     from typing import Mapping
 from datetime import datetime
-from pyproj import Proj, CRS, transform
+from pyproj import Transformer
 from decimal import Decimal, ROUND_HALF_UP
 
 
@@ -115,28 +114,30 @@ def round_value(value: (str, int, float), nr_decimals=2) -> str:
     return str(Decimal(str(value)).quantize(Decimal('%%1.%sf' % nr_decimals % 1), rounding=ROUND_HALF_UP))
 
 
-def transform_ref_system(lat=0.0, lon=0.0,
-                         in_proj='EPSG:3006',  # SWEREF 99TM 1200
-                         out_proj='EPSG:4326'):
+def transform_ref_system(
+        latitude,
+        longitude,
+        in_projection='EPSG:3006',  # SWEREF 99TM
+        out_projection='EPSG:4326'  # WGS 84
+):
     """
     Transform coordinates from one spatial reference system to another.
-    in_proj is your current reference system
-    out_proj is the reference system you want to transform to, default is EPSG:4326 = WGS84
-    (Another good is EPSG:4258 = ETRS89 (Europe), almost the same as WGS84 (in Europe)
-    and not always clear if coordinates are in WGS84 or ETRS89, but differs <1m.
-    lat = latitude
-    lon = longitude
+
+    in_projecton is your current reference system. Default is SWEREF 99 TM.
+    out_projection is the reference system you want to transform to. Default is WGS 84.
+
+    Another useful one is EPSG:4258 = ETRS89 (Europe) that is almost the same as WGS 84
+    in Europe. It is not always clear if coordinates are in WGS84 or ETRS89, but the
+    difference should be <1m.
+
     To find your EPSG check this website: http://spatialreference.org/ref/epsg/
     """
-    # o_proj = Proj("+init=" + out_proj)
-    # i_proj = Proj("+init=" + in_proj)
-    o_proj = CRS(out_proj)
-    i_proj = CRS(in_proj)
+    transformer = Transformer.from_crs(in_projection, out_projection, always_xy=True)
+    transformed_longitude, transformed_latitude = transformer.transform(
+        longitude, latitude
+    )
 
-    x, y = transform(i_proj, o_proj, float(lon), float(lat), always_xy=True)
-
-    # Returns LAT, LONG   !!!!
-    return y, x
+    return transformed_latitude, transformed_longitude
 
 
 def latlon_distance(origin, destination):
