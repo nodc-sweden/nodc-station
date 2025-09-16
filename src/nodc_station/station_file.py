@@ -308,7 +308,7 @@ class StationFile:
         point = Point(lon_dd, lat_dd)
         d = {"name": ["name"], "geometry": [point]}
         pos_df = gpd.GeoDataFrame(d, crs=4326)
-        return next(pos_df.to_crs("3006")["geometry"])
+        return pos_df.to_crs("3006")["geometry"].squeeze()
 
     def get_stations_with_matching_synonym(self, name: str) -> list[dict]:
         if self._case_sensitive:
