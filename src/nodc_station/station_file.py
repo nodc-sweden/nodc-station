@@ -82,6 +82,14 @@ class MatchingStation:
     def reg_id(self) -> int:
         return self._station["reg_id"]
 
+    @property
+    def reg_id_group(self) -> int:
+        return self._station["reg_id_group"]
+
+    @property
+    def eu_cd(self) -> int:
+        return self._station["eu_cd"]
+
 
 class MatchingStations:
     def __init__(self, stations: list[dict]) -> None:
@@ -91,6 +99,19 @@ class MatchingStations:
     def get_accepted_station(self) -> MatchingStation | None:
         for station in self._stations:
             if station.is_accepted:
+                return station
+
+    def get_closest_station(self) -> MatchingStation | None:
+        info = []
+        if not self._stations:
+            return None
+        for station in self._stations:
+            info.append((station.distance, station))
+        return sorted(info)[0][1]
+
+    def get_accepted_station_by_name_only(self) -> MatchingStation | None:
+        for station in self._stations:
+            if station.accepted_name:
                 return station
 
     def __repr__(self):
