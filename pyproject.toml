@@ -10,6 +10,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "geopandas>=1.1.0",
+    "nodc-config",
     "polars>=1.31.0",
     "pyarrow>=20.0.0",
     "pyproj>=3.7.1",
@@ -36,6 +37,9 @@ select = [
     "I",  # isort: unsorted-imports
     "RUF"  # Ruff-specific rules
 ]
+
+[tool.uv.sources]
+nodc-config = { git = "https://github.com/nodc-sweden/nodc-config.git", rev = "v0.1.0" }
 
 [dependency-groups]
 dev = [

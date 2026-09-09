@@ -34,6 +34,9 @@ class MatchingStation:
             "_", " "
         )
 
+    def __lt__(self, other):
+        return self.distance_with_decimals < other.distance_with_decimals
+
     @property
     def is_accepted(self) -> str:
         return self._station["accepted"]
@@ -73,6 +76,10 @@ class MatchingStation:
     @property
     def lon_sweref99tm(self) -> float:
         return self._station["sweref99tm_x"]
+
+    @property
+    def distance_with_decimals(self) -> int:
+        return float(self._station["distance"])
 
     @property
     def distance(self) -> int:
