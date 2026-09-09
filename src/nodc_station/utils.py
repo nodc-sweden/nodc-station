@@ -39,7 +39,6 @@ def decmin_to_decdeg(pos, string_type=True, decimals=4):
 
     output = np.floor(pos / 100.0) + (pos % 100) / 60.0
     output = round_value(output, nr_decimals=decimals)
-    # output = "%.5f" % output
     if string_type:
         return output
     else:

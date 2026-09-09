@@ -1,4 +1,3 @@
-import functools
 import pathlib
 import re
 
@@ -33,6 +32,9 @@ class MatchingStation:
         return f"{self.station} ({self.distance:_} m). Synonyms: {synonyms}".replace(
             "_", " "
         )
+
+    def __lt__(self, other):
+        return self.distance_with_decimals < other.distance_with_decimals
 
     @property
     def is_accepted(self) -> str:
@@ -73,6 +75,10 @@ class MatchingStation:
     @property
     def lon_sweref99tm(self) -> float:
         return self._station["sweref99tm_x"]
+
+    @property
+    def distance_with_decimals(self) -> int:
+        return float(self._station["distance"])
 
     @property
     def distance(self) -> int:
@@ -277,7 +283,7 @@ class StationFile:
     def get_station_name_list(self) -> list[str]:
         return sorted(self.pol_df["station_name"])
 
-    @functools.cache
+
     def get_matching_stations(
         self,
         name: str | None = None,
