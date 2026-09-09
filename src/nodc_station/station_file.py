@@ -1,4 +1,3 @@
-import functools
 import pathlib
 import re
 
@@ -284,7 +283,7 @@ class StationFile:
     def get_station_name_list(self) -> list[str]:
         return sorted(self.pol_df["station_name"])
 
-    @functools.cache
+
     def get_matching_stations(
         self,
         name: str | None = None,
