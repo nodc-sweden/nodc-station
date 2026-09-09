@@ -93,7 +93,7 @@ source = { git = "https://github.com/nodc-sweden/nodc-config.git?rev=v0.1.0#29d4
 
 [[package]]
 name = "nodc-station"
-version = "0.2.0"
+version = "2.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "geopandas" },
