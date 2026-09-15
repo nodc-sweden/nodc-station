@@ -89,7 +89,7 @@ wheels = [
 [[package]]
 name = "nodc-config"
 version = "0.1.0"
-source = { git = "https://github.com/nodc-sweden/nodc-config.git?rev=v0.1.0#29d4cafb36ff050c8f53d9f560a8b5580e4cae31" }
+source = { git = "https://github.com/nodc-sweden/nodc-config.git?rev=v0.1.0#20b907527216732723ade0df02c88f80cd81e2c0" }
 
 [[package]]
 name = "nodc-station"

@@ -283,7 +283,6 @@ class StationFile:
     def get_station_name_list(self) -> list[str]:
         return sorted(self.pol_df["station_name"])
 
-
     def get_matching_stations(
         self,
         name: str | None = None,
