@@ -25,7 +25,11 @@ HEADER_MAPPER = {
 
 class MatchingStation:
     def __init__(self, station: dict):
-        self._station = station
+        self._station = dict()
+        for key, value in station.items():
+            if str(value) == "nan":
+                value = ""
+            self._station[key] = value
 
     def __repr__(self):
         synonyms = "; ".join(self.synonyms)

@@ -29,10 +29,11 @@ def get_matching_stations(
     name: str | None = None,
     lat_dd: float | None = None,
     lon_dd: float | None = None,
+    case_sensitive: bool = True,
 ) -> MatchingStations:
-    return get_station_object(nodc_conf).get_matching_stations(
-        name=name, lat_dd=lat_dd, lon_dd=lon_dd
-    )
+    return get_station_object(
+        nodc_conf, case_sensitive=case_sensitive
+    ).get_matching_stations(name=name, lat_dd=lat_dd, lon_dd=lon_dd)
 
 
 def clear_cache() -> None:
